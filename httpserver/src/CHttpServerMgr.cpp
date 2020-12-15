@@ -157,6 +157,54 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
   {
     return PostBatchAdd(strmsg);
   }
+  else if (struri.compare(std::string("/VIID/System/Register")) == 0)
+  {
+    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+    printf("rcv 1400 register, %s\n", strmsg.c_str());
+    printf("1400 注册\n");
+    static int stage = 1;
+    std::string strdata = std::string("HTTP/1.1 200 OK\r\nAuthentication-Info: qop=\"auth\", rspauth=\"3da388c7aad8b8008b73c1375ddf6d04\", cnonce=\"0a4f113b\", nc=\"00000001\"\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 17:43:12 GMT\r\nContent-Length: 157\r\n\r\n{\"ResponseStatusObject\":{\"Id\":\"32050500001320000007\",\"LocalTime\":\"20200625014312\",\"RequestURL\":\"/VIID/System/Register\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}}");
+    if ((stage++ % 2) != 0)
+    {
+      // 注册第一步
+      printf("注册第一步\n");
+      stage = 0;
+      strdata = std::string("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/plain; charset=utf-8\r\nWWW-Authenticate: Digest realm=\"Tallsafe\", nonce=\"9DukP3NBqnsns8L3\", opaque=\"AF1sztyyUsfpS9cI\", algorithm=\"MD5\", qop=\"auth\"\r\nX-Content-Type-Options: nosniff\r\nDate: Wed, 24 Jun 2020 14:52:08 GMT\r\nContent-Length: 13\r\n\r\nUnauthorized");
+    }
+    else
+    {
+      //注册第二步
+      printf("注册第二步\n");
+      // sleep(10);
+    }
+    printf("注册 resp data:%s--\n", strdata.c_str());
+    return strdata;
+  }
+  else if (struri.compare(std::string("/VIID/System/Keepalive")) == 0)
+  {
+    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+    printf("rcv 1400 heartbeat, %s\n", strmsg.c_str());
+    return std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 20:11:21 GMT\r\n\r\nContent-Length: 139\r\n{\"ResponseStatusObject\":{\"Id\":\"32050500001320000007\",\"LocalTime\":\"20200625041121\",\"RequestURL\":\"/VIID/System/Keepalive\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}}");
+  }
+  else if (struri.compare(std::string("/VIID/System/UnRegister")) == 0)
+  {
+    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+    printf("1400 取消注册\n");
+    return std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 20:11:21 GMT\r\n\r\nContent-Length: 139\r\n{\"ResponseStatusObject\":{\"Id\":\"0\",\"LocalTime\":\"20200625041121\",\"RequestURL\":\"/VIID/System/UnRegister\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}}");
+  }
+  else if (struri.compare(std::string("/VIID/MotorVehicles")) == 0)
+  {
+    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+    // printf("msg:%s\n", strmsg.c_str());
+    printf("1400 识别结果数据\n");
+    // std::ofstream outfile;
+    // outfile.open("ivs.txt");
+    // outfile << strmsg << std::endl;
+    // outfile.close();
+    std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
+    printf("resp data:%s--\n", stresp.c_str());
+    return stresp;
+  }
   else
   {
     printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
