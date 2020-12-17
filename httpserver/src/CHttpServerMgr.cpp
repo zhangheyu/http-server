@@ -194,17 +194,23 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
   }
   else if (struri.compare(std::string("/VIID/MotorVehicles")) == 0)
   {
-    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
-    // printf("msg:%s\n", strmsg.c_str());
-    printf("1400 识别结果数据\n");
-    // std::ofstream outfile;
-    // outfile.open("ivs.txt");
-    // outfile << strmsg << std::endl;
-    // outfile.close();
-    std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
-    printf("resp data:%s--\n", stresp.c_str());
-    return stresp;
-  }
+      printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+      // printf("msg:%s\n", strmsg.c_str());
+      printf("收到1400 识别结果数据\n");
+      Json::Value jmsg;
+      Json::Reader jreader;
+      if (jreader.parse(strmsg, jmsg))
+      {
+        printf("rcve json:%s\n", jmsg.toStyledString().c_str());
+      }
+      // std::ofstream outfile;
+      // outfile.open("ivs.txt");
+      // outfile << strmsg << std::endl;
+      // outfile.close();
+      std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
+      printf("resp data:%s--\n", stresp.c_str());
+      return stresp;
+    }
   else if (struri.compare(std::string("/devicemanagement/php/plateresult.php")) == 0)
   {
     // 车牌识别结果
