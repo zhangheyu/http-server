@@ -78,7 +78,7 @@ int HttpServer::Init() {
 
 int HttpServer::HttpsInit(){
 
-printf("%s %d \n", __FUNCTION__, __LINE__);
+    printf("%s %d \n", __FUNCTION__, __LINE__);
 	if (CRYPTO_thread_setup())
 	{ 
 		fprintf(stderr, "Cannot setup thread mutex for OpenSSL\n");

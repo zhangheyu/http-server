@@ -5027,7 +5027,7 @@ soap_bind(struct soap *soap, const char *host, int port, int backlog)
   { soap_set_receiver_error(soap, tcp_error(soap), "TCP init failed in soap_bind()", SOAP_TCP_ERROR);
     return SOAP_INVALID_SOCKET;
   }
-  printf("%s %d\n", __FUNCTION__, __LINE__);
+  // printf("%s %d\n", __FUNCTION__, __LINE__);
 #ifdef WITH_IPV6
   memset((void*)&hints, 0, sizeof(hints));
   hints.ai_family = PF_INET6;
@@ -5039,19 +5039,19 @@ soap_bind(struct soap *soap, const char *host, int port, int backlog)
     hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   soap->errmode = 2;
-   printf("%s %d\n", __FUNCTION__, __LINE__);
+  //  printf("%s %d\n", __FUNCTION__, __LINE__);
   err = getaddrinfo(host, soap_int2s(soap, port), &hints, &addrinfo);
   if (err || !addrinfo)
   { soap_set_receiver_error(soap, SOAP_GAI_STRERROR(err), "getaddrinfo failed in soap_bind()", SOAP_TCP_ERROR);
     return SOAP_INVALID_SOCKET;
   }
-   printf("%s %d\n", __FUNCTION__, __LINE__);
+  //  printf("%s %d\n", __FUNCTION__, __LINE__);
   res = *addrinfo;
   if (soap_memcpy((void*)&soap->peer.storage, sizeof(soap->peer.storage), (const void*)addrinfo->ai_addr, addrinfo->ai_addrlen))
   { soap->error = SOAP_EOM;
     return SOAP_INVALID_SOCKET;
   }
-   printf("%s %d\n", __FUNCTION__, __LINE__);
+  //  printf("%s %d\n", __FUNCTION__, __LINE__);
   soap->peerlen = addrinfo->ai_addrlen;
   res.ai_addr = &soap->peer.addr;
   res.ai_addrlen = soap->peerlen;
@@ -5085,7 +5085,7 @@ soap_bind(struct soap *soap, const char *host, int port, int backlog)
   fcntl(soap->master, F_SETFD, 1);
 #endif
 #endif
- printf("%s %d\n", __FUNCTION__, __LINE__);
+//  printf("%s %d\n", __FUNCTION__, __LINE__);
 #ifndef WITH_LEAN
   if (soap->bind_flags && setsockopt(soap->master, SOL_SOCKET, soap->bind_flags, (char*)&set, sizeof(int)))
   { soap->errnum = soap_socket_errno(soap->master);
@@ -5124,7 +5124,7 @@ soap_bind(struct soap *soap, const char *host, int port, int backlog)
 #endif
 #endif
 #endif
- printf("%s %d\n", __FUNCTION__, __LINE__);
+//  printf("%s %d\n", __FUNCTION__, __LINE__);
 #ifdef WITH_IPV6
 #ifdef WITH_IPV6_V6ONLY
  printf("%s %d\n", __FUNCTION__, __LINE__);
@@ -5154,7 +5154,7 @@ soap_bind(struct soap *soap, const char *host, int port, int backlog)
     return SOAP_INVALID_SOCKET;
   }
 #else
- printf("%s %d\n", __FUNCTION__, __LINE__);
+//  printf("%s %d\n", __FUNCTION__, __LINE__);
   soap->peerlen = sizeof(soap->peer.in);
   memset((void*)&soap->peer.in, 0, sizeof(soap->peer.in));
   soap->peer.in.sin_family = AF_INET;
@@ -5267,7 +5267,8 @@ SOAP_FMAC1
 SOAP_SOCKET
 SOAP_FMAC2
 soap_accept(struct soap *soap)
-{  printf("%s %d\n", __FUNCTION__, __LINE__);
+{ 
+  //  printf("%s %d\n", __FUNCTION__, __LINE__);
   int n = (int)sizeof(soap->peer);
   int err;
 #ifndef WITH_LEAN
@@ -5292,7 +5293,7 @@ soap_accept(struct soap *soap)
   if ((soap->omode & SOAP_IO_UDP))
     return soap->socket = soap->master;
 #endif
- printf("%s %d\n", __FUNCTION__, __LINE__);
+//  printf("%s %d\n", __FUNCTION__, __LINE__);
   for (;;)
   {
     if (soap->accept_timeout || soap->send_timeout || soap->recv_timeout)
@@ -5300,9 +5301,9 @@ soap_accept(struct soap *soap)
       for (;;)
       {
         int r;
-        printf("%s %d\n", __FUNCTION__, __LINE__);
+        // printf("%s %d\n", __FUNCTION__, __LINE__);
         r = tcp_select(soap, soap->master, SOAP_TCP_SELECT_ALL, soap->accept_timeout ? soap->accept_timeout : 60);
-        printf("%s %d r=%d\n", __FUNCTION__, __LINE__, r);
+        // printf("%s %d r=%d\n", __FUNCTION__, __LINE__, r);
         if (r > 0)
           break;
         if (!r && soap->accept_timeout)
@@ -5313,7 +5314,7 @@ soap_accept(struct soap *soap)
         }
         if (r < 0)
         { 
-          printf("%s %d\n", __FUNCTION__, __LINE__);
+          // printf("%s %d\n", __FUNCTION__, __LINE__);
           r = soap->errnum;
           if (r != SOAP_EINTR)
           { soap_closesock(soap);
@@ -5332,7 +5333,7 @@ soap_accept(struct soap *soap)
     n = (int)sizeof(soap->peer);
     soap->socket = soap->faccept(soap, soap->master, &soap->peer.addr, &n);
     soap->peerlen = (size_t)n;
-    printf("%s %d socket=%d\n", __FUNCTION__, __LINE__,soap->socket);
+    // printf("%s %d socket=%d\n", __FUNCTION__, __LINE__,soap->socket);
     if (soap_valid_socket(soap->socket))
     {
 #ifdef WITH_IPV6
@@ -5408,12 +5409,12 @@ soap_accept(struct soap *soap)
 #endif
 #endif
       soap->keep_alive = (((soap->imode | soap->omode) & SOAP_IO_KEEPALIVE) != 0);
-       printf("%s %d keep_alive=%d\n", __FUNCTION__, __LINE__, soap->keep_alive);
+      //  printf("%s %d keep_alive=%d\n", __FUNCTION__, __LINE__, soap->keep_alive);
       if (soap->send_timeout || soap->recv_timeout) {
-         printf("%s %d SOAP_SOCKNONBLOCK\n", __FUNCTION__, __LINE__);
+        //  printf("%s %d SOAP_SOCKNONBLOCK\n", __FUNCTION__, __LINE__);
         SOAP_SOCKNONBLOCK(soap->socket)
       } else {
-        printf("%s %d SOAP_SOCKBLOCK\n", __FUNCTION__, __LINE__);
+        // printf("%s %d SOAP_SOCKBLOCK\n", __FUNCTION__, __LINE__);
         SOAP_SOCKBLOCK(soap->socket)
       }
       return soap->socket;
@@ -15956,7 +15957,7 @@ int
 SOAP_FMAC2
 soap_begin_serve(struct soap *soap)
 {
-  printf("%s %d \n", __FUNCTION__, __LINE__);
+  // printf("%s %d \n", __FUNCTION__, __LINE__);
 #ifdef WITH_FASTCGI
   if (FCGI_Accept() < 0)
   { soap->error = SOAP_EOF;
@@ -15973,14 +15974,14 @@ soap_begin_serve(struct soap *soap)
 #ifdef WITH_FASTCGI
       soap_send_fault(soap);
 #else  
-      printf("%s %d \n", __FUNCTION__, __LINE__);
+      // printf("%s %d \n", __FUNCTION__, __LINE__);
       return soap_send_fault(soap);
 #endif
     }
-    printf("%s %d \n", __FUNCTION__, __LINE__);
+    // printf("%s %d \n", __FUNCTION__, __LINE__);
     return soap_closesock(soap);
   }
-  printf("%s %d SOAP_OK\n", __FUNCTION__, __LINE__);
+  // printf("%s %d SOAP_OK\n", __FUNCTION__, __LINE__);
   return SOAP_OK;
 }
 #endif

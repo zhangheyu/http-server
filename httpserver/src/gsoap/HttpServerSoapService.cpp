@@ -152,7 +152,8 @@ SOAP_SOCKET HttpServerSoapService::bind(const char *host, int port, int backlog)
 }
 
 SOAP_SOCKET HttpServerSoapService::accept()
-{	printf("%s %d\n", __FUNCTION__, __LINE__);
+{	
+	// printf("%s %d\n", __FUNCTION__, __LINE__);
 	return soap_accept(this);
 }
 
@@ -164,7 +165,7 @@ int HttpServerSoapService::ssl_accept()
 
 int HttpServerSoapService::serve()
 {
-	printf("%s %d max_keep_alive:%d\n", __FUNCTION__, __LINE__, this->max_keep_alive);
+	// printf("%s %d max_keep_alive:%d\n", __FUNCTION__, __LINE__, this->max_keep_alive);
 #ifndef WITH_FASTCGI
 	unsigned int k = this->max_keep_alive;
 #endif
@@ -175,7 +176,7 @@ int HttpServerSoapService::serve()
 		if (this->max_keep_alive > 0 && !--k)
 			this->keep_alive = 0;
 #endif
-printf("%s %d keep_alive:%d\n", __FUNCTION__, __LINE__, this->keep_alive);
+// printf("%s %d keep_alive:%d\n", __FUNCTION__, __LINE__, this->keep_alive);
 		if (soap_begin_serve(this))
 		{	if (this->error >= SOAP_STOP)
 				continue;

@@ -260,8 +260,8 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       // rtvalue["Response_AlarmInfoPlate"]["serialData"].append(serialData);
       
       rstring = rtvalue.toStyledString();
-      printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
-      printf("resp to dev: %s\n", rstring.c_str());
+      // printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+      // printf("resp to dev: %s\n", rstring.c_str());
       return rstring;
     }
   }
