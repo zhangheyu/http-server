@@ -1,6 +1,8 @@
 #include "CHttpServerMgr.h"
 #include <json/json.h>
 #include <json/value.h>
+#include <iostream>
+#include <string>
 
 const char *web_get_uri = "/getstate/query";
 const char *web_del_uri = "/delete";
@@ -221,15 +223,25 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
     std::string rstring;
     if (jreader.parse(strmsg, jmsg))
     {
-      printf("rcve json:%s\n", jmsg.toStyledString().c_str());
+      // printf("rcve json:%s\n", jmsg.toStyledString().c_str());
       time_t t = time(0);
       char tmpBuf[64];
       strftime(tmpBuf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t)); //format date  and time.
       // printf("recv time is [%s]  type:%s\n",tmpBuf, jmsg["type"].asString().c_str());
+      int is_offline = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["isoffline"].asInt();
+      int plateid = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["plateid"].asInt();
+      int hour = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["timeStamp"]["Timeval"]["dechour"].asInt();
+      int min = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["timeStamp"]["Timeval"]["decmin"].asInt();
+      int sec = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["timeStamp"]["Timeval"]["decsec"].asInt();
+      long long time_stamp = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["timeStamp"]["Timeval"]["sec"].asUInt();
+      std::string plate = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["license"].asString();
+      std::string status = is_offline == 1 ? "离线数据" : "在线数据";
+      printf("\033[31m [%d:%d:%d]收到%s plateid=%d palte=%s sec=%lld \033[0m \n", hour, min, sec, status.c_str(), plateid, plate.c_str(), time_stamp);
+
       // 识别结果
-      rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["plate_id"] = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["plateid"];
+      rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["plate_id"] = plateid;
       rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["continue"] = 1;
-      
+
       // 车牌识别结果响应白名单操作指令
       // rtvalue["Response_AlarmInfoPlate"]["white_list_operate"]["operate_type"] = 0;
       // Json::Value plate_info;
@@ -248,8 +260,8 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       // rtvalue["Response_AlarmInfoPlate"]["serialData"].append(serialData);
       
       rstring = rtvalue.toStyledString();
-      printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
-      printf("resp to dev: %s\n", rstring.c_str());
+      // printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+      // printf("resp to dev: %s\n", rstring.c_str());
       return rstring;
     }
   }

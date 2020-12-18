@@ -58,21 +58,33 @@ std::string GetCompileVersion()
 
 int main(int argc,char* argv[])
 {
-  int port = 8888;
+  	int port = 8888;
 	if (argc >= 2)
 	{
-		if(strcmp(argv[1], "-version") == 0)
-      printf("%s\r\n", GetCompileVersion().c_str());
-    else {
-      port = atoi(argv[1]);
-    }
-		return 0;
+		int opt;
+		while ((opt = getopt(argc, argv, "vp:")) != -1)
+		{
+			printf("get opt:%d\n", opt);
+			switch (opt)
+			{
+				case 'v':
+					printf("%s\r\n", GetCompileVersion().c_str());
+					break;
+				case 'p':
+					port = atoi(optarg);
+					break;
+				default: /* '?' */
+					fprintf(stderr, "Usage: %s [-p port] [-v] version\n",
+							argv[0]);
+					exit(EXIT_FAILURE);
+			}
+		}
 	}
 
 	if (CHttpServerMgr::GetInstance()->Start() < 0)
 		return -1;
 
-  	printf("port:%d\n", port);
+	printf("http port:%d\n", port);
 	printf(("HTTP服务已启动...\n"));
 
   CHttpServerMgr::GetInstance()->WebRun(port);
