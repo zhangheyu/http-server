@@ -10,3 +10,4 @@ cd httpserver && make -j
 
 编译生成的可执行程序在output目录
 
+./http_server -p port指定要使用的端口，若不指定，默认为8888
