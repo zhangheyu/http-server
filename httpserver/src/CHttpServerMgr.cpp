@@ -236,7 +236,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       long long time_stamp = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["timeStamp"]["Timeval"]["sec"].asUInt();
       std::string plate = jmsg["AlarmInfoPlate"]["result"]["PlateResult"]["license"].asString();
       std::string status = is_offline == 1 ? "离线数据" : "在线数据";
-      printf("\033[31m [%d:%d:%d]收到%s plateid=%d palte=%s sec=%lld \033[0m \n", hour, min, sec, status.c_str(), plateid, plate.c_str(), time_stamp);
+      printf("\033[31m [%d:%02d:%02d]收到%s plateid=%d palte=%s sec=%lld \033[0m \n", hour, min, sec, status.c_str(), plateid, plate.c_str(), time_stamp);
 
       // 识别结果
       rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["plate_id"] = plateid;
