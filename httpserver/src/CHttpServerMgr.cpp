@@ -239,7 +239,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       printf("\033[31m [%d:%02d:%02d]收到%s plateid=%d palte=%s sec=%lld \033[0m \n", hour, min, sec, status.c_str(), plateid, plate.c_str(), time_stamp);
 
       // 识别结果
-      rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["plate_id"] = plateid;
+      rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["plateid"] = plateid;
       rtvalue["Response_AlarmInfoPlate"]["ContinuePushOffline"]["continue"] = 1;
 
       // 车牌识别结果响应白名单操作指令
