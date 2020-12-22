@@ -212,7 +212,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
       printf("resp data:%s--\n", stresp.c_str());
       return stresp;
-    }
+  }
   else if (struri.compare(std::string("/devicemanagement/php/plateresult.php")) == 0)
   {
     // 车牌识别结果
