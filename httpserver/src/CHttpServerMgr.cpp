@@ -306,7 +306,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
           printf("\033[31m malloc failed \033[0m \n");
           return "error";
         }
-        //大小超过1.7M的图片收不到
+        //大小超过1.8M的图片,json解析会失败
         base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
         printf("\033[33m 1400 ivs big image size:%d name:%s \033[0m\n", imageSize, big_image_name.c_str());
         FILE *fp = fopen(big_image_name.c_str(), "wb");   
@@ -323,9 +323,14 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       else 
       {
         printf("\033[31m ivs data no big image \033[0m \n");
-        printf("ivs data:%s\n", jmsg.toStyledString().c_str());
+        printf("ivs data:%s\n", strmsg.c_str());
       }
       
+    }
+    else 
+    {
+      printf("\033[31m ivs data is not json format \033[0m \n");
+      printf("ivs data:%s\n", jmsg.toStyledString().c_str());
     }
     std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
     printf("resp data:%s--\n", stresp.c_str());
