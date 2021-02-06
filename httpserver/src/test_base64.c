@@ -2,7 +2,7 @@
 #include "base64.h"
 #include <stdio.h>
 #include <string.h>
-
+//  gcc -o test_base test_base64.c base64.c
 int main(int argc, char **argv)
 {
     unsigned char *buf = NULL;

@@ -3,13 +3,14 @@
 #include <json/value.h>
 #include <iostream>
 #include <string>
+#include <unistd.h>
+#include <fcntl.h>
 
 const char *web_get_uri = "/getstate/query";
 const char *web_del_uri = "/delete";
 const char *web_add_uri = "/add";
 const char *web_batchadd_uri = "/batchadd";
 const char *web_add_login = "/login";
-//const char *nb_uri = "/deviceDataChanged";
 
 const char *web_key_devid = "devid";
 const char *web_key_hid = "hid";
@@ -17,6 +18,90 @@ const char *web_key_pageNo = "pageNo";
 const char *web_key_type = "type";
 const char *web_token = "token";
 
+const char * base64char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+char *base64_encode( const unsigned char * bindata, char * base64, int binlength )
+{
+    int i, j;
+    unsigned char current;
+ 
+    for ( i = 0, j = 0 ; i < binlength ; i += 3 )
+    {
+        current = (bindata[i] >> 2) ;
+        current &= (unsigned char)0x3F;
+        base64[j++] = base64char[(int)current];
+ 
+        current = ( (unsigned char)(bindata[i] << 4 ) ) & ( (unsigned char)0x30 ) ;
+        if ( i + 1 >= binlength )
+        {
+            base64[j++] = base64char[(int)current];
+            base64[j++] = '=';
+            base64[j++] = '=';
+            break;
+        }
+        current |= ( (unsigned char)(bindata[i+1] >> 4) ) & ( (unsigned char) 0x0F );
+        base64[j++] = base64char[(int)current];
+ 
+        current = ( (unsigned char)(bindata[i+1] << 2) ) & ( (unsigned char)0x3C ) ;
+        if ( i + 2 >= binlength )
+        {
+            base64[j++] = base64char[(int)current];
+            base64[j++] = '=';
+            break;
+        }
+        current |= ( (unsigned char)(bindata[i+2] >> 6) ) & ( (unsigned char) 0x03 );
+        base64[j++] = base64char[(int)current];
+ 
+        current = ( (unsigned char)bindata[i+2] ) & ( (unsigned char)0x3F ) ;
+        base64[j++] = base64char[(int)current];
+    }
+    base64[j] = '\0';
+    return 0;
+}
+ 
+int base64_decode( const char * base64, unsigned char * bindata )
+{
+    int i, j;
+    unsigned char k;
+    unsigned char temp[4];
+    for ( i = 0, j = 0; base64[i] != '\0' ; i += 4 )
+    {
+        memset( temp, 0xFF, sizeof(temp) );
+        for ( k = 0 ; k < 64 ; k ++ )
+        {
+            if ( base64char[k] == base64[i] )
+                temp[0]= k;
+        }
+        for ( k = 0 ; k < 64 ; k ++ )
+        {
+            if ( base64char[k] == base64[i+1] )
+                temp[1]= k;
+        }
+        for ( k = 0 ; k < 64 ; k ++ )
+        {
+            if ( base64char[k] == base64[i+2] )
+                temp[2]= k;
+        }
+        for ( k = 0 ; k < 64 ; k ++ )
+        {
+            if ( base64char[k] == base64[i+3] )
+                temp[3]= k;
+        }
+ 
+        bindata[j++] = ((unsigned char)(((unsigned char)(temp[0] << 2))&0xFC)) |
+                ((unsigned char)((unsigned char)(temp[1]>>4)&0x03));
+        if ( base64[i+2] == '=' )
+            break;
+ 
+        bindata[j++] = ((unsigned char)(((unsigned char)(temp[1] << 4))&0xF0)) |
+                ((unsigned char)((unsigned char)(temp[2]>>2)&0x0F));
+        if ( base64[i+3] == '=' )
+            break;
+ 
+        bindata[j++] = ((unsigned char)(((unsigned char)(temp[2] << 6))&0xF0)) |
+                ((unsigned char)(temp[3]&0x3F));
+    }
+    return j;
+}
 
 CHttpServerMgr *CHttpServerMgr::_httpservermgr = NULL;
 CHttpServerMgr::CHttpServerMgr()
@@ -196,22 +281,48 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
   }
   else if (struri.compare(std::string("/VIID/MotorVehicles")) == 0)
   {
-      printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
-      // printf("msg:%s\n", strmsg.c_str());
-      printf("收到1400 识别结果数据\n");
-      Json::Value jmsg;
-      Json::Reader jreader;
-      if (jreader.parse(strmsg, jmsg))
+    printf("收到1400 识别结果数据\n");
+    printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
+    // printf("rcve 1400 string data:%s\n", strmsg.c_str());
+
+    Json::Value jmsg;
+    Json::Reader jreader;
+    if (jreader.parse(strmsg, jmsg))
+    {
+      // printf("rcve 1400 json data:%s\n", jmsg.toStyledString().c_str());
+      Json::Value SubImageList;
+      unsigned char *big_image_data_decode = NULL;
+      SubImageList = jmsg["MotorVehicleListObject"]["MotorVehicleObject"][0u]["SubImageList"];
+      // 保存大图
+      std::string big_image_data = SubImageList["SubImageInfoObject"][0u]["Data"].asString();
+      std::string big_image_name = SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
+      unsigned int imageSize = big_image_data.size();
+      char *imageOutput;
+
+      imageOutput = (char *)malloc(sizeof(char)*imageSize);
+      if (NULL == imageOutput)
       {
-        printf("rcve json:%s\n", jmsg.toStyledString().c_str());
+        printf("malloc failed");
+        return "error";
       }
-      // std::ofstream outfile;
-      // outfile.open("ivs.txt");
-      // outfile << strmsg << std::endl;
-      // outfile.close();
-      std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
-      printf("resp data:%s--\n", stresp.c_str());
-      return stresp;
+
+      base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
+      // 有的图片大小不对
+      printf("1400 ivs big image size:%d name:%s \n", imageSize, big_image_name.c_str());
+      FILE *fp = fopen(big_image_name.c_str(), "wb");   
+      if (NULL == fp)
+      {
+        printf("file open file");
+        free(imageOutput);
+        return "error";
+      }
+      fwrite(imageOutput, 1, imageSize, fp);
+      fclose(fp);
+      free(imageOutput);
+    }
+    std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
+    printf("resp data:%s--\n", stresp.c_str());
+    return stresp;
   }
   else if (struri.compare(std::string("/devicemanagement/php/plateresult.php")) == 0)
   {
