@@ -323,7 +323,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       else 
       {
         printf("\033[31m ivs data no big image \033[0m \n");
-        printf("ivs data:%s\n", strmsg.c_str());
+        printf("ivs data is :%s\n", strmsg.c_str());
       }
       
     }
