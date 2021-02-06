@@ -307,7 +307,6 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       }
 
       base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
-      // 有的图片大小不对
       printf("1400 ivs big image size:%d name:%s \n", imageSize, big_image_name.c_str());
       FILE *fp = fopen(big_image_name.c_str(), "wb");   
       if (NULL == fp)
