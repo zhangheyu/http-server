@@ -298,26 +298,34 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       std::string big_image_name = "1400_ivs_image/" + SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
       unsigned int imageSize = big_image_data.size();
       char *imageOutput;
-
-      imageOutput = (char *)malloc(sizeof(char)*imageSize);
-      if (NULL == imageOutput)
-      {	 
-        printf("\033[31m malloc failed \033[0m \n");
-        return "error";
-      }
-      //大小超过1M的图片会解码失败
-      base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
-      printf("1400 ivs big image size:%d name:%s \n", imageSize, big_image_name.c_str());
-      FILE *fp = fopen(big_image_name.c_str(), "wb");   
-      if (NULL == fp)
+      if (imageSize > 0)
       {
-        printf("\033[31m create file failed \033[0m \n");
+        imageOutput = (char *)malloc(sizeof(char)*imageSize);
+        if (NULL == imageOutput)
+        {	 
+          printf("\033[31m malloc failed \033[0m \n");
+          return "error";
+        }
+        //大小超过1.7M的图片收不到
+        base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
+        printf("\033[33m 1400 ivs big image size:%d name:%s \033[0m\n", imageSize, big_image_name.c_str());
+        FILE *fp = fopen(big_image_name.c_str(), "wb");   
+        if (NULL == fp)
+        {
+          printf("\033[31m create file failed \033[0m \n");
+          free(imageOutput);
+          return "error";
+        }
+        fwrite(imageOutput, 1, imageSize, fp);
+        fclose(fp);
         free(imageOutput);
-        return "error";
       }
-      fwrite(imageOutput, 1, imageSize, fp);
-      fclose(fp);
-      free(imageOutput);
+      else 
+      {
+        printf("\033[31m ivs data no big image \033[0m \n");
+        printf("ivs data:%s\n", jmsg.toStyledString().c_str());
+      }
+      
     }
     std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
     printf("resp data:%s--\n", stresp.c_str());
