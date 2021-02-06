@@ -295,23 +295,23 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       SubImageList = jmsg["MotorVehicleListObject"]["MotorVehicleObject"][0u]["SubImageList"];
       // 保存大图
       std::string big_image_data = SubImageList["SubImageInfoObject"][0u]["Data"].asString();
-      std::string big_image_name = SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
+      std::string big_image_name = "1400_ivs_image/" + SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
       unsigned int imageSize = big_image_data.size();
       char *imageOutput;
 
       imageOutput = (char *)malloc(sizeof(char)*imageSize);
       if (NULL == imageOutput)
-      {
-        printf("malloc failed");
+      {	 
+        printf("\033[31m malloc failed \033[0m \n");
         return "error";
       }
-
+      //大小超过1M的图片会解码失败
       base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
       printf("1400 ivs big image size:%d name:%s \n", imageSize, big_image_name.c_str());
       FILE *fp = fopen(big_image_name.c_str(), "wb");   
       if (NULL == fp)
       {
-        printf("file open file");
+        printf("\033[31m create file failed \033[0m \n");
         free(imageOutput);
         return "error";
       }
