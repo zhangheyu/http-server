@@ -297,7 +297,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       std::string big_image_data = SubImageList["SubImageInfoObject"][0u]["Data"].asString();
       std::string big_image_name = "1400_ivs_image/" + SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
       unsigned int imageSize = big_image_data.size();
-      char *imageOutput;
+      char *imageOutput = NULL;
       if (imageSize > 0)
       {
         imageOutput = (char *)malloc(sizeof(char)*imageSize);
@@ -314,11 +314,13 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
         {
           printf("\033[31m create file failed \033[0m \n");
           free(imageOutput);
+          imageOutput = NULL;
           return "error";
         }
         fwrite(imageOutput, 1, imageSize, fp);
         fclose(fp);
         free(imageOutput);
+        imageOutput = NULL;
       }
       else 
       {
