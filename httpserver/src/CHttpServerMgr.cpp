@@ -293,6 +293,8 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       Json::Value SubImageList;
       unsigned char *big_image_data_decode = NULL;
       SubImageList = jmsg["MotorVehicleListObject"]["MotorVehicleObject"][0u]["SubImageList"];
+      std::string plate = jmsg["MotorVehicleListObject"]["MotorVehicleObject"][0u]["PlateNo"].asString();
+      std::string HasPlate = jmsg["MotorVehicleListObject"]["MotorVehicleObject"][0u]["HasPlate"].asString();
       // 保存大图
       std::string big_image_data = SubImageList["SubImageInfoObject"][0u]["Data"].asString();
       std::string big_image_name = "1400_ivs_image/" + SubImageList["SubImageInfoObject"][0u]["ShotTime"].asString() + "_big.jpg";
@@ -308,7 +310,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
         }
         //大小超过1.8M的图片,json会解析失败
         base64_decode(big_image_data.c_str(), (unsigned char*)imageOutput);
-        printf("\033[33m 1400 ivs big image size:%d name:%s \033[0m\n", imageSize, big_image_name.c_str());
+        printf("\033[33m 1400 ivs big image size:%d name:%s plate:%s HasPlate:%s \033[0m\n", imageSize, big_image_name.c_str(), plate.c_str(), HasPlate.c_str());
         FILE *fp = fopen(big_image_name.c_str(), "wb");   
         if (NULL == fp)
         {
@@ -332,10 +334,10 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
     {
       // 可能图片太大了，没解析出来
       printf("\033[31m ivs data is not json format \033[0m \n");
-      printf("ivs data is :%s\n", strmsg.c_str());
+      printf("str data is :%s\n", strmsg.c_str());
     }
     std::string stresp = std::string("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: application/VIID+json\r\nDate: Wed, 24 Jun 2020 11:55:36 GMT\r\nContent-Length: 214\r\n\r\n{\"ResponseStatusListObject\":{\"ResponseStatusObject\":[{\"Id\":\"320505000013200000070220200624195235527380252739\",\"LocalTime\":\"20200624195536\",\"RequestURL\":\"/VIID/MotorVehicles\",\"StatusCode\":\"0\",\"StatusString\":\"OK\"}]}}");
-    printf("resp data:%s--\n", stresp.c_str());
+    printf("resp data:%s\n", stresp.c_str());
     return stresp;
   }
   else if (struri.compare(std::string("/devicemanagement/php/plateresult.php")) == 0)
@@ -386,7 +388,7 @@ std::string CHttpServerMgr::PostOnMessage(std::string struri, std::string strmsg
       
       rstring = rtvalue.toStyledString();
       // printf("%s %d struri:%s\n", __FUNCTION__, __LINE__, struri.c_str());
-      // printf("resp to dev: %s\n", rstring.c_str());
+      //  printf("resp to dev: %s\n", rstring.c_str());
       return rstring;
     }
   }
